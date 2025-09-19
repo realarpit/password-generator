@@ -7,7 +7,7 @@ import { Suspense } from "react"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Secure Password Generator",
+  title: "password-generator",
   description: "Generate secure passwords with visual and text modes",
     generator: 'v0.app'
 }
