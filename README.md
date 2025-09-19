@@ -1,30 +1,53 @@
-# Password generator interface
+# Secure Password Generator
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+A comprehensive password generator with both traditional text-based and innovative visual password modes.
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/arpitcodes4l-1060s-projects/v0-password-generator-interface)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/ku9kYmUfnuF)
 
-## Overview
+## Features
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+- **Traditional Password Generation**: Customizable character sets, length, and complexity
+- **Visual Password Mode**: Icon-based passwords with themed collections (animals, nature, food, objects, symbols)
+- **Pattern Drawing**: Create passwords by drawing patterns on interactive grids
+- **Hybrid Mode**: Combine visual elements with traditional characters
+- **Security Analysis**: Real-time strength calculation and entropy measurement
+- **Dark/Light Theme**: Toggle between themes with system preference detection
+- **Mobile Responsive**: Optimized for all device sizes
+- **Accessibility**: Full keyboard navigation and screen reader support
 
-## Deployment
+## Password Modes
 
-Your project is live at:
+### Text Mode
+Generate traditional passwords with customizable options:
+- Uppercase and lowercase letters
+- Numbers and special characters
+- Emoji support
+- Adjustable length (4-128 characters)
 
-**[https://vercel.com/arpitcodes4l-1060s-projects/v0-password-generator-interface](https://vercel.com/arpitcodes4l-1060s-projects/v0-password-generator-interface)**
+### Visual Mode
+Create memorable visual passwords using:
+- **Icon Selection**: Choose from 5 themed icon collections
+- **Pattern Drawing**: Draw patterns on 3x3, 4x4, or 5x5 grids
+- **Hybrid Combinations**: Mix visual elements with text characters
 
-## Build your app
+## Security Features
 
-Continue building your app on:
+- Comprehensive strength analysis
+- Entropy calculation for all password types
+- Visual feedback on password complexity
+- Secure random generation algorithms
 
-**[https://v0.app/chat/projects/ku9kYmUfnuF](https://v0.app/chat/projects/ku9kYmUfnuF)**
+## Getting Started
 
-## How It Works
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Run the development server: `npm run dev`
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## Technologies Used
+
+- Next.js 14 with App Router
+- React 18 with TypeScript
+- Tailwind CSS for styling
+- Radix UI components
+- Lucide React icons
