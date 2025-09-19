@@ -1,163 +1,21 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-import { Copy, RefreshCw, Shield, Key, Hash, AtSign, Sun, Moon, Smile, ImageIcon, Grid3X3, Palette } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 
 interface PasswordOptions {
   length: number
   includeUppercase: boolean
   includeNumbers: boolean
   includeSymbols: boolean
-  memorable: boolean
   includeEmojis: boolean
-  graphicalMode: boolean
-  iconTheme: string
-  hybridMode: boolean
-  patternMode: boolean
+  memorable: boolean
 }
 
-const ICON_THEMES = {
-  animals: [
-    "🐶",
-    "🐱",
-    "🐭",
-    "🐹",
-    "🐰",
-    "🦊",
-    "🐻",
-    "🐼",
-    "🐨",
-    "🐯",
-    "🦁",
-    "🐮",
-    "🐷",
-    "🐸",
-    "🐵",
-    "🐔",
-    "🐧",
-    "🐦",
-    "🐤",
-    "🦆",
-    "🦅",
-    "🦉",
-    "🦇",
-    "🐺",
-    "🐗",
-  ],
-  nature: [
-    "🌲",
-    "🌳",
-    "🌴",
-    "🌵",
-    "🌶",
-    "🍄",
-    "🌾",
-    "💐",
-    "🌷",
-    "🌹",
-    "🥀",
-    "🌺",
-    "🌸",
-    "🌼",
-    "🌻",
-    "🌞",
-    "🌝",
-    "🌛",
-    "🌜",
-    "🌚",
-    "🌕",
-    "🌖",
-    "🌗",
-    "🌘",
-    "🌑",
-  ],
-  food: [
-    "🍎",
-    "🍊",
-    "🍋",
-    "🍌",
-    "🍉",
-    "🍇",
-    "🍓",
-    "🍈",
-    "🍒",
-    "🍑",
-    "🥭",
-    "🍍",
-    "🥥",
-    "🥝",
-    "🍅",
-    "🍆",
-    "🥑",
-    "🥦",
-    "🥒",
-    "🌶",
-    "🌽",
-    "🥕",
-    "🥔",
-    "🍠",
-    "🥐",
-  ],
-  objects: [
-    "⚽",
-    "🏀",
-    "🏈",
-    "⚾",
-    "🎾",
-    "🏐",
-    "🏉",
-    "🎱",
-    "🏓",
-    "🏸",
-    "🥅",
-    "⛳",
-    "🏹",
-    "🎣",
-    "🥊",
-    "🥋",
-    "🎽",
-    "⛸",
-    "🥌",
-    "🛷",
-    "🎿",
-    "⛷",
-    "🏂",
-    "🏋",
-    "🤸",
-  ],
-  symbols: [
-    "⭐",
-    "✨",
-    "🌟",
-    "💫",
-    "⚡",
-    "🔥",
-    "💥",
-    "💢",
-    "💨",
-    "💤",
-    "💦",
-    "💧",
-    "🌊",
-    "🌀",
-    "🌈",
-    "☀",
-    "⛅",
-    "☁",
-    "🌤",
-    "⛈",
-    "🌩",
-    "❄",
-    "☃",
-    "⛄",
-    "🌬",
-  ],
+interface GraphicalOptions {
+  mode: "text" | "graphical" | "hybrid"
+  selectedIcons: string[]
+  patternGrid: boolean[][]
+  iconTheme: "animals" | "nature" | "food" | "objects" | "symbols"
 }
 
 const LOWERCASE = "abcdefghijklmnopqrstuvwxyz"
@@ -184,11 +42,23 @@ const MEMORABLE_WORDS = [
   "river",
   "storm",
   "trust",
-  "unity",
-  "voice",
-  "world",
-  "youth",
+  "wonder",
+  "bright",
+  "swift",
+  "noble",
+  "gentle",
+  "strong",
+  "wise",
+  "kind",
 ]
+
+const ICON_THEMES = {
+  animals: ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔"],
+  nature: ["🌸", "🌺", "🌻", "🌷", "🌹", "🌿", "🍀", "🌳", "🌲", "🌴", "🌵", "🌾", "🌊", "⭐", "🌙", "☀️"],
+  food: ["🍎", "🍌", "🍊", "🍓", "🍇", "🥝", "🍑", "🍒", "🥭", "🍍", "🥥", "🥑", "🍅", "🥕", "🌽", "🥒"],
+  objects: ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏓", "🏸", "🥅", "🎯", "🎮", "🎲", "🎸", "🎹", "🎺", "🎻"],
+  symbols: ["❤️", "💙", "💚", "💛", "🧡", "💜", "🖤", "🤍", "💯", "💫", "⭐", "🌟", "✨", "💎", "🔥", "💧"],
+}
 
 export default function PasswordGenerator() {
   const [password, setPassword] = useState("")
@@ -197,18 +67,21 @@ export default function PasswordGenerator() {
     includeUppercase: true,
     includeNumbers: true,
     includeSymbols: true,
-    memorable: false,
     includeEmojis: false,
-    graphicalMode: false,
-    iconTheme: "animals",
-    hybridMode: false,
-    patternMode: false,
+    memorable: false,
   })
-  const [selectedIcons, setSelectedIcons] = useState<string[]>([])
-  const [patternPoints, setPatternPoints] = useState<number[]>([])
-  const [strength, setStrength] = useState({ score: 0, label: "Weak", color: "bg-destructive" })
+
+  const [graphicalOptions, setGraphicalOptions] = useState<GraphicalOptions>({
+    mode: "text",
+    selectedIcons: [],
+    patternGrid: Array(5)
+      .fill(null)
+      .map(() => Array(5).fill(false)),
+    iconTheme: "animals",
+  })
+
+  const [strength, setStrength] = useState({ score: 0, label: "Weak", color: "bg-red-500" })
   const [isDark, setIsDark] = useState(true)
-  const { toast } = useToast()
 
   useEffect(() => {
     if (isDark) {
@@ -217,32 +90,6 @@ export default function PasswordGenerator() {
       document.documentElement.classList.remove("dark")
     }
   }, [isDark])
-
-  const generateGraphicalPassword = useCallback(() => {
-    if (options.patternMode && patternPoints.length > 0) {
-      // Convert pattern to password
-      return patternPoints.join("-")
-    } else if (selectedIcons.length > 0) {
-      // Convert selected icons to password
-      let result = selectedIcons.join("")
-
-      if (options.hybridMode) {
-        // Add traditional characters
-        let charset = LOWERCASE
-        if (options.includeUppercase) charset += UPPERCASE
-        if (options.includeNumbers) charset += NUMBERS
-        if (options.includeSymbols) charset += SYMBOLS
-
-        const remainingLength = Math.max(0, options.length - selectedIcons.length)
-        for (let i = 0; i < remainingLength; i++) {
-          result += charset.charAt(Math.floor(Math.random() * charset.length))
-        }
-      }
-
-      return result
-    }
-    return ""
-  }, [selectedIcons, patternPoints, options])
 
   const generateRandomPassword = useCallback(() => {
     let charset = LOWERCASE
@@ -286,90 +133,115 @@ export default function PasswordGenerator() {
     return result.slice(0, options.length)
   }, [options])
 
-  const generatePassword = useCallback(() => {
-    if (options.graphicalMode) {
-      const newPassword = generateGraphicalPassword()
-      setPassword(newPassword)
-    } else {
-      const newPassword = options.memorable ? generateMemorablePassword() : generateRandomPassword()
-      setPassword(newPassword)
+  const generateGraphicalPassword = useCallback(() => {
+    if (graphicalOptions.mode === "graphical") {
+      // Pure graphical mode
+      const icons = graphicalOptions.selectedIcons
+      const patternString = graphicalOptions.patternGrid
+        .flat()
+        .map((cell, index) => (cell ? `P${index}` : ""))
+        .filter(Boolean)
+        .join("")
+
+      return icons.join("") + patternString
+    } else if (graphicalOptions.mode === "hybrid") {
+      // Hybrid mode: combine graphical elements with text
+      const textPart = options.memorable ? generateMemorablePassword() : generateRandomPassword()
+      const iconPart = graphicalOptions.selectedIcons.slice(0, 3).join("")
+      const patternPart = graphicalOptions.patternGrid.flat().some((cell) => cell) ? "Pattern" : ""
+
+      return (textPart.slice(0, Math.floor(options.length * 0.7)) + iconPart + patternPart).slice(0, options.length)
     }
-  }, [options, generateMemorablePassword, generateRandomPassword, generateGraphicalPassword])
+
+    return options.memorable ? generateMemorablePassword() : generateRandomPassword()
+  }, [options, graphicalOptions, generateMemorablePassword, generateRandomPassword])
+
+  const generatePassword = useCallback(() => {
+    const newPassword = generateGraphicalPassword()
+    setPassword(newPassword)
+  }, [generateGraphicalPassword])
 
   const calculateStrength = useCallback(
     (pwd: string) => {
       let score = 0
+      let complexity = 0
+
+      // Length scoring
       if (pwd.length >= 8) score += 1
       if (pwd.length >= 12) score += 1
-      if (/[a-z]/.test(pwd)) score += 1
-      if (/[A-Z]/.test(pwd)) score += 1
-      if (/[0-9]/.test(pwd)) score += 1
-      if (/[^A-Za-z0-9]/.test(pwd)) score += 1
-      if (/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(pwd))
-        score += 1
+      if (pwd.length >= 16) score += 1
 
-      // Bonus for graphical elements
-      if (options.graphicalMode) {
-        if (selectedIcons.length >= 3) score += 1
-        if (options.hybridMode) score += 1
-        if (options.patternMode && patternPoints.length >= 4) score += 1
+      // Character type scoring
+      if (/[a-z]/.test(pwd)) {
+        score += 1
+        complexity += 26
+      }
+      if (/[A-Z]/.test(pwd)) {
+        score += 1
+        complexity += 26
+      }
+      if (/[0-9]/.test(pwd)) {
+        score += 1
+        complexity += 10
+      }
+      if (/[^A-Za-z0-9]/.test(pwd)) {
+        score += 1
+        complexity += 32
       }
 
-      if (score <= 2) return { score: 25, label: "Weak", color: "bg-destructive" }
-      if (score <= 4) return { score: 60, label: "Medium", color: "bg-warning" }
-      return { score: 100, label: "Strong", color: "bg-success" }
+      // Graphical elements bonus
+      if (graphicalOptions.selectedIcons.length > 0) {
+        score += 1
+        complexity += graphicalOptions.selectedIcons.length * 100
+      }
+
+      if (graphicalOptions.patternGrid.flat().some((cell) => cell)) {
+        score += 1
+        complexity += 1000
+      }
+
+      // Calculate entropy-based score
+      const entropy = Math.log2(complexity) * pwd.length
+      let entropyScore = 0
+      if (entropy > 50) entropyScore = 100
+      else if (entropy > 35) entropyScore = 75
+      else if (entropy > 25) entropyScore = 50
+      else entropyScore = 25
+
+      const finalScore = Math.max(entropyScore, (score / 8) * 100)
+
+      if (finalScore <= 40) return { score: finalScore, label: "Weak", color: "bg-red-500" }
+      if (finalScore <= 70) return { score: finalScore, label: "Medium", color: "bg-yellow-500" }
+      return { score: finalScore, label: "Strong", color: "bg-green-500" }
     },
-    [options, selectedIcons, patternPoints],
+    [graphicalOptions],
   )
 
   const copyToClipboard = async () => {
     try {
-      let textToCopy = password
-      if (options.graphicalMode && !options.hybridMode) {
-        // For pure graphical passwords, copy a text representation
-        textToCopy = selectedIcons.length > 0 ? `Icons: ${selectedIcons.join(", ")}` : password
-      }
-
-      await navigator.clipboard.writeText(textToCopy)
-      toast({
-        title: "Password copied!",
-        description:
-          options.graphicalMode && !options.hybridMode
-            ? "Icon sequence copied as text representation."
-            : "The password has been copied to your clipboard.",
-      })
+      await navigator.clipboard.writeText(password)
+      alert("Password copied!")
     } catch (err) {
-      toast({
-        title: "Copy failed",
-        description: "Unable to copy password to clipboard.",
-        variant: "destructive",
-      })
+      alert("Copy failed")
     }
   }
 
-  const handleIconSelect = (icon: string) => {
-    if (selectedIcons.includes(icon)) {
-      setSelectedIcons((prev) => prev.filter((i) => i !== icon))
-    } else if (selectedIcons.length < options.length) {
-      setSelectedIcons((prev) => [...prev, icon])
-    }
+  const togglePatternCell = (row: number, col: number) => {
+    setGraphicalOptions((prev) => ({
+      ...prev,
+      patternGrid: prev.patternGrid.map((r, rIndex) =>
+        rIndex === row ? r.map((c, cIndex) => (cIndex === col ? !c : c)) : r,
+      ),
+    }))
   }
 
-  const handlePatternPoint = (point: number) => {
-    if (patternPoints.includes(point)) {
-      setPatternPoints((prev) => prev.filter((p) => p !== point))
-    } else if (patternPoints.length < 9) {
-      setPatternPoints((prev) => [...prev, point])
-    }
-  }
-
-  const getCharacterColor = (char: string, index: number) => {
-    if (/[A-Z]/.test(char)) return "text-primary"
-    if (/[0-9]/.test(char)) return "text-success"
-    if (/[^A-Za-z0-9]/.test(char)) return "text-warning"
-    if (/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(char))
-      return "text-accent"
-    return "text-foreground"
+  const selectIcon = (icon: string) => {
+    setGraphicalOptions((prev) => ({
+      ...prev,
+      selectedIcons: prev.selectedIcons.includes(icon)
+        ? prev.selectedIcons.filter((i) => i !== icon)
+        : [...prev.selectedIcons, icon].slice(0, 8),
+    }))
   }
 
   useEffect(() => {
@@ -382,363 +254,268 @@ export default function PasswordGenerator() {
     }
   }, [password, calculateStrength])
 
-  useEffect(() => {
-    if (!options.graphicalMode) {
-      setSelectedIcons([])
-      setPatternPoints([])
-    }
-  }, [options.graphicalMode])
-
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-6">
+    <div
+      className={`min-h-screen ${isDark ? "bg-gray-900 text-white" : "bg-gray-100 text-black"} flex items-center justify-center p-4`}
+    >
+      <div className="w-full max-w-4xl space-y-6">
         {/* Header */}
         <div className="text-center space-y-2 relative">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => setIsDark(!isDark)}
-            className="absolute -right-12 top-0 gap-2"
+            className="absolute right-0 top-0 px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
           >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            {isDark ? "Light" : "Dark"}
-          </Button>
-
-          <h1 className="text-3xl font-bold text-balance">Password Generator</h1>
-          <p className="text-muted-foreground text-pretty">Generate strong, unique passwords.</p>
+            {isDark ? "☀️ Light" : "🌙 Dark"}
+          </button>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            Password Generator
+          </h1>
+          <p className="text-gray-500">Generate strong, unique passwords with advanced graphical options.</p>
         </div>
 
-        {/* Main Card */}
-        <Card className="p-6 space-y-6 shadow-2xl border-border/50">
-          {/* Password Display */}
-          <div className="space-y-3">
-            <div className="bg-secondary/50 rounded-lg p-4 border border-border/50">
-              <div className="font-mono text-lg break-all leading-relaxed tracking-wide">
-                {password.split("").map((char, index) => (
-                  <span
-                    key={index}
-                    className={`${getCharacterColor(char, index)} ${/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(char) ? "mx-1" : ""}`}
-                  >
-                    {char}
-                  </span>
-                ))}
+        {/* Mode Selection */}
+        <div className="flex justify-center gap-2">
+          {(["text", "graphical", "hybrid"] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setGraphicalOptions((prev) => ({ ...prev, mode }))}
+              className={`px-6 py-2 rounded-lg capitalize transition-colors ${
+                graphicalOptions.mode === mode
+                  ? "bg-blue-500 text-white"
+                  : "border hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Main Password Card */}
+          <div className={`${isDark ? "bg-gray-800" : "bg-white"} p-6 space-y-6 rounded-lg shadow-lg border`}>
+            {/* Password Display */}
+            <div className="space-y-3">
+              <div
+                className={`${isDark ? "bg-gray-700" : "bg-gray-100"} rounded-lg p-4 border min-h-[60px] flex items-center`}
+              >
+                <div className="font-mono text-lg break-all w-full">{password}</div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={copyToClipboard}
+                  className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  📋 Copy
+                </button>
+                <button
+                  onClick={generatePassword}
+                  className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  🔄 Regenerate
+                </button>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={copyToClipboard} className="flex-1 gap-2 bg-transparent">
-                <Copy className="w-4 h-4" />
-                Copy
-              </Button>
-              <Button onClick={generatePassword} className="flex-1 gap-2 bg-primary hover:bg-primary/90">
-                <RefreshCw className="w-4 h-4" />
-                Regenerate
-              </Button>
+            {/* Text Mode Options */}
+            {(graphicalOptions.mode === "text" || graphicalOptions.mode === "hybrid") && (
+              <>
+                {/* Toggle Options */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setOptions((prev) => ({ ...prev, memorable: false }))}
+                    className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                      !options.memorable ? "bg-blue-500 text-white" : "border hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Random
+                  </button>
+                  <button
+                    onClick={() => setOptions((prev) => ({ ...prev, memorable: true }))}
+                    className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                      options.memorable ? "bg-blue-500 text-white" : "border hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Memorable
+                  </button>
+                </div>
+
+                {/* Length Slider */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium">Character Length</label>
+                    <span className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">{options.length}</span>
+                  </div>
+                  <input
+                    type="range"
+                    value={options.length}
+                    onChange={(e) => setOptions((prev) => ({ ...prev, length: Number.parseInt(e.target.value) }))}
+                    max={50}
+                    min={4}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Character Options */}
+                <div className="space-y-4">
+                  {[
+                    { key: "includeUppercase", label: "Capital letters", icon: "Aa" },
+                    { key: "includeNumbers", label: "Numbers", icon: "123" },
+                    { key: "includeSymbols", label: "Symbols", icon: "!@#" },
+                    { key: "includeEmojis", label: "Emojis", icon: "😀" },
+                  ].map(({ key, label, icon }) => (
+                    <div key={key} className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id={key}
+                        checked={options[key as keyof PasswordOptions] as boolean}
+                        onChange={(e) => setOptions((prev) => ({ ...prev, [key]: e.target.checked }))}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor={key} className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                        <span className="text-lg">{icon}</span>
+                        {label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Security Score */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Security Strength</span>
+                <span className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">{strength.label}</span>
+              </div>
+
+              <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-3">
+                <div
+                  className={`h-3 rounded-full transition-all duration-500 ${strength.color}`}
+                  style={{ width: `${strength.score}%` }}
+                />
+              </div>
+
+              <p className="text-xs text-gray-500">
+                {strength.label === "Weak" &&
+                  "Consider using more character types, increasing length, or adding graphical elements."}
+                {strength.label === "Medium" &&
+                  "Good password! Consider adding graphical elements for enhanced security."}
+                {strength.label === "Strong" && "Excellent! This password provides strong security protection."}
+              </p>
             </div>
           </div>
 
-          {/* Mode Toggle */}
-          <div className="flex gap-2">
-            <Button
-              variant={!options.graphicalMode ? "default" : "outline"}
-              onClick={() => setOptions((prev) => ({ ...prev, graphicalMode: false }))}
-              className="flex-1"
-            >
-              Text Mode
-            </Button>
-            <Button
-              variant={options.graphicalMode ? "default" : "outline"}
-              onClick={() => setOptions((prev) => ({ ...prev, graphicalMode: true }))}
-              className="flex-1 gap-2"
-            >
-              <ImageIcon className="w-4 h-4" />
-              Visual Mode
-            </Button>
-          </div>
+          {/* Graphical Options Card */}
+          {(graphicalOptions.mode === "graphical" || graphicalOptions.mode === "hybrid") && (
+            <div className={`${isDark ? "bg-gray-800" : "bg-white"} p-6 space-y-6 rounded-lg shadow-lg border`}>
+              <h3 className="text-xl font-semibold">Graphical Elements</h3>
 
-          {options.graphicalMode && (
-            <div className="space-y-4 border-t border-border/50 pt-4">
-              {/* Theme Selection */}
+              {/* Icon Theme Selection */}
               <div className="space-y-3">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Palette className="w-4 h-4" />
-                  Icon Theme
-                </label>
+                <label className="text-sm font-medium">Icon Theme</label>
                 <div className="flex gap-2 flex-wrap">
                   {Object.keys(ICON_THEMES).map((theme) => (
-                    <Button
+                    <button
                       key={theme}
-                      variant={options.iconTheme === theme ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setOptions((prev) => ({ ...prev, iconTheme: theme }))}
-                      className="capitalize"
+                      onClick={() =>
+                        setGraphicalOptions((prev) => ({ ...prev, iconTheme: theme as keyof typeof ICON_THEMES }))
+                      }
+                      className={`px-3 py-1 rounded-lg capitalize text-sm transition-colors ${
+                        graphicalOptions.iconTheme === theme
+                          ? "bg-blue-500 text-white"
+                          : "border hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
                     >
                       {theme}
-                    </Button>
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Mode Options */}
-              <div className="flex gap-2">
-                <Button
-                  variant={!options.patternMode ? "default" : "outline"}
-                  onClick={() => setOptions((prev) => ({ ...prev, patternMode: false }))}
-                  className="flex-1"
-                >
-                  Icon Selection
-                </Button>
-                <Button
-                  variant={options.patternMode ? "default" : "outline"}
-                  onClick={() => setOptions((prev) => ({ ...prev, patternMode: true }))}
-                  className="flex-1 gap-2"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                  Pattern
-                </Button>
-              </div>
-
-              {/* Hybrid Mode Toggle */}
-              <div className="flex items-center space-x-3">
-                <Checkbox
-                  id="hybrid"
-                  checked={options.hybridMode}
-                  onCheckedChange={(checked) => setOptions((prev) => ({ ...prev, hybridMode: !!checked }))}
-                />
-                <label htmlFor="hybrid" className="text-sm font-medium cursor-pointer">
-                  Hybrid Mode (Mix with text characters)
-                </label>
-              </div>
-
-              {/* Icon Grid or Pattern Grid */}
-              {!options.patternMode ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">
-                      Select Icons ({selectedIcons.length}/{options.length})
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedIcons([])}
-                      disabled={selectedIcons.length === 0}
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-8 gap-2 p-4 bg-secondary/30 rounded-lg border border-border/30 max-h-48 overflow-y-auto">
-                    {ICON_THEMES[options.iconTheme as keyof typeof ICON_THEMES].map((icon, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleIconSelect(icon)}
-                        className={`text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110 ${
-                          selectedIcons.includes(icon)
-                            ? "border-primary bg-primary/20 shadow-lg"
-                            : "border-border/50 hover:border-primary/50"
-                        }`}
-                        disabled={!selectedIcons.includes(icon) && selectedIcons.length >= options.length}
-                        aria-label={`Select ${icon} icon`}
-                      >
-                        {icon}
-                        {selectedIcons.includes(icon) && (
-                          <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            {selectedIcons.indexOf(icon) + 1}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Draw Pattern ({patternPoints.length}/9 points)</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPatternPoints([])}
-                      disabled={patternPoints.length === 0}
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 p-6 bg-secondary/30 rounded-lg border border-border/30 max-w-xs mx-auto">
-                    {Array.from({ length: 9 }, (_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handlePatternPoint(index)}
-                        className={`w-12 h-12 rounded-full border-2 transition-all hover:scale-110 ${
-                          patternPoints.includes(index)
-                            ? "border-primary bg-primary/20 shadow-lg"
-                            : "border-border/50 hover:border-primary/50"
-                        }`}
-                        aria-label={`Pattern point ${index + 1}`}
-                      >
-                        {patternPoints.includes(index) && (
-                          <span className="text-primary font-bold">{patternPoints.indexOf(index) + 1}</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Traditional Options - only show when not in pure graphical mode */}
-          {(!options.graphicalMode || options.hybridMode) && (
-            <>
-              {/* Toggle Options */}
-              {!options.graphicalMode && (
-                <div className="flex gap-2">
-                  <Button
-                    variant={!options.memorable ? "default" : "outline"}
-                    onClick={() => setOptions((prev) => ({ ...prev, memorable: false }))}
-                    className="flex-1"
-                  >
-                    Random
-                  </Button>
-                  <Button
-                    variant={options.memorable ? "default" : "outline"}
-                    onClick={() => setOptions((prev) => ({ ...prev, memorable: true }))}
-                    className="flex-1"
-                  >
-                    Memorable
-                  </Button>
-                </div>
-              )}
-
-              {/* Length Slider */}
+              {/* Icon Selection */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium">
-                    {options.graphicalMode ? "Total Length" : "Character Length"}
-                  </label>
-                  <Badge variant="secondary">{options.length}</Badge>
+                  <label className="text-sm font-medium">Select Icons</label>
+                  <span className="text-xs text-gray-500">{graphicalOptions.selectedIcons.length}/8 selected</span>
                 </div>
-                <Slider
-                  value={[options.length]}
-                  onValueChange={(value) => setOptions((prev) => ({ ...prev, length: value[0] }))}
-                  max={50}
-                  min={4}
-                  step={1}
-                  className="w-full"
-                />
+                <div className="grid grid-cols-8 gap-2">
+                  {ICON_THEMES[graphicalOptions.iconTheme].map((icon, index) => (
+                    <button
+                      key={index}
+                      onClick={() => selectIcon(icon)}
+                      className={`p-2 text-2xl rounded-lg border transition-all hover:scale-110 ${
+                        graphicalOptions.selectedIcons.includes(icon)
+                          ? "bg-blue-500 border-blue-500 text-white"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
+                      title={`${graphicalOptions.iconTheme} icon ${index + 1}`}
+                    >
+                      {icon}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Character Options */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="uppercase"
-                    checked={options.includeUppercase}
-                    onCheckedChange={(checked) => setOptions((prev) => ({ ...prev, includeUppercase: !!checked }))}
-                  />
-                  <div className="flex items-center gap-2">
-                    <Key className="w-4 h-4 text-primary" />
-                    <label htmlFor="uppercase" className="text-sm font-medium cursor-pointer">
-                      Capital letters
-                    </label>
+              {/* Selected Icons Display */}
+              {graphicalOptions.selectedIcons.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Selected Icons</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {graphicalOptions.selectedIcons.map((icon, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-blue-100 dark:bg-blue-900 rounded text-lg cursor-pointer hover:bg-red-100 dark:hover:bg-red-900"
+                        onClick={() => selectIcon(icon)}
+                        title="Click to remove"
+                      >
+                        {icon}
+                      </span>
+                    ))}
                   </div>
                 </div>
+              )}
 
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="numbers"
-                    checked={options.includeNumbers}
-                    onCheckedChange={(checked) => setOptions((prev) => ({ ...prev, includeNumbers: !!checked }))}
-                  />
-                  <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 text-success" />
-                    <label htmlFor="numbers" className="text-sm font-medium cursor-pointer">
-                      Numbers
-                    </label>
-                  </div>
+              {/* Pattern Grid */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Pattern Grid</label>
+                <div className="grid grid-cols-5 gap-1 w-fit mx-auto">
+                  {graphicalOptions.patternGrid.map((row, rowIndex) =>
+                    row.map((cell, colIndex) => (
+                      <button
+                        key={`${rowIndex}-${colIndex}`}
+                        onClick={() => togglePatternCell(rowIndex, colIndex)}
+                        className={`w-8 h-8 border rounded transition-all hover:scale-110 ${
+                          cell
+                            ? "bg-blue-500 border-blue-500"
+                            : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+                        }`}
+                        aria-label={`Pattern cell ${rowIndex + 1}-${colIndex + 1}`}
+                      />
+                    )),
+                  )}
                 </div>
-
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="symbols"
-                    checked={options.includeSymbols}
-                    onCheckedChange={(checked) => setOptions((prev) => ({ ...prev, includeSymbols: !!checked }))}
-                  />
-                  <div className="flex items-center gap-2">
-                    <AtSign className="w-4 h-4 text-warning" />
-                    <label htmlFor="symbols" className="text-sm font-medium cursor-pointer">
-                      Symbols
-                    </label>
-                  </div>
+                <div className="text-center">
+                  <button
+                    onClick={() =>
+                      setGraphicalOptions((prev) => ({
+                        ...prev,
+                        patternGrid: Array(5)
+                          .fill(null)
+                          .map(() => Array(5).fill(false)),
+                      }))
+                    }
+                    className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  >
+                    Clear Pattern
+                  </button>
                 </div>
-
-                {!options.graphicalMode && (
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      id="emojis"
-                      checked={options.includeEmojis}
-                      onCheckedChange={(checked) => setOptions((prev) => ({ ...prev, includeEmojis: !!checked }))}
-                    />
-                    <div className="flex items-center gap-2">
-                      <Smile className="w-4 h-4 text-accent" />
-                      <label htmlFor="emojis" className="text-sm font-medium cursor-pointer">
-                        Include Emojis
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {options.includeEmojis && !options.graphicalMode && (
-                  <div className="text-xs text-muted-foreground bg-secondary/30 p-2 rounded border border-border/30">
-                    ⚠️ Note: Some websites may not accept emojis in passwords. Test compatibility before use.
-                  </div>
-                )}
               </div>
-            </>
-          )}
-
-          {options.graphicalMode && (
-            <div className="text-xs text-muted-foreground bg-secondary/30 p-3 rounded border border-border/30 space-y-1">
-              <p>
-                ⚠️ <strong>Graphical Password Notice:</strong>
-              </p>
-              <p>• Pure visual passwords work best for personal use or compatible systems</p>
-              <p>• Use Hybrid Mode to combine with traditional characters for broader compatibility</p>
-              <p>• Pattern mode creates numeric sequences based on your drawing</p>
             </div>
           )}
-
-          {/* Security Score */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                <span className="text-sm font-medium">Security Strength</span>
-              </div>
-              <Badge variant="secondary">{strength.label}</Badge>
-            </div>
-
-            <div className="w-full bg-secondary rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${strength.color}`}
-                style={{ width: `${strength.score}%` }}
-              />
-            </div>
-
-            <p className="text-xs text-muted-foreground text-pretty">
-              {strength.label === "Weak" && "Consider using more character types and increasing length."}
-              {strength.label === "Medium" &&
-                "Good password! Consider adding more character types for better security."}
-              {strength.label === "Strong" &&
-                `Excellent! This password provides strong security protection.${
-                  options.graphicalMode
-                    ? " Visual elements add extra uniqueness!"
-                    : options.includeEmojis
-                      ? " Emojis add extra uniqueness!"
-                      : ""
-                }`}
-            </p>
-          </div>
-        </Card>
+        </div>
       </div>
     </div>
   )
