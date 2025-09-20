@@ -35,13 +35,6 @@ Create memorable visual passwords using:
 - Visual feedback on password complexity
 - Secure random generation algorithms
 
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Run the development server: `npm run dev`
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
 ## Technologies Used
 
 - Next.js 14 with App Router
