@@ -2,8 +2,6 @@
 
 A comprehensive password generator with both traditional text-based and innovative visual password modes.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/arpitcodes4l-1060s-projects/v0-password-generator-interface)
-
 ## Features
 
 - **Traditional Password Generation**: Customizable character sets, length, and complexity
